@@ -151,7 +151,7 @@ Detailed instructions on setting up the Ansible Tower container-based installati
 
     In `group_vars/all`, update the following key:
     ```yaml
-    kubernetes_task_image: quay.io/mdelder/ansible-tower-task
+    kubernetes_task_image: quay.io/waynedovey/ansible-tower-task
     ```
 
     You can build this image and consume it from your own registry by building the `Dockerfile.taskimage` under `hack/tower-setup/container_task_image`.

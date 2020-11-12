@@ -13,7 +13,7 @@ metadata:
     apps.open-cluster-management.io/github-path: hack/manifests/policies
 spec:
   type: GitHub
-  pathname: https://github.com/mdelder/k8s-pacman-app.git
+  pathname: https://github.com/waynedovey/k8s-pacman-app.git
   # secretRef:
   #   name: github-credentials
 # ---
