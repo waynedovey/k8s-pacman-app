@@ -71,9 +71,8 @@ spec:
     - key: region
       operator: In
       values:
-      - us-east-1
-      - us-west-1
-#      - europe-west3
+      - ap-southeast-1
+      - ap-southeast-2
     matchLabels:
       environment: dev
 #      apps/pacman: deployed
