@@ -49,8 +49,8 @@ metadata:
     app.kubernetes.io/name: pacman
 spec:
   channel: pacman-app/pacman-app-latest
-  hooksecretref:
-    name: toweraccess
+#  hooksecretref:
+#    name: toweraccess
   placement:
     placementRef:
       kind: PlacementRule
