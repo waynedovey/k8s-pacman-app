@@ -20,6 +20,7 @@ spec:
     spec:
       serviceAccount: pacman-app
       serviceAccountName: pacman-app
+      hostNetwork: true
       containers:
       - image: quay.io/jpacker/nodejs-pacman-app:green
         name: pacman
