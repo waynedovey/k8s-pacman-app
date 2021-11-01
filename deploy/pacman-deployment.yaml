@@ -26,7 +26,7 @@ spec:
           name: http-server
         env:
         - name: MONGO_SERVICE_HOST
-          value: mongodb
+          value: mongodb.pacman-app.svc.clusterset.local
         - name: MONGO_AUTH_USER
           valueFrom:
             secretKeyRef:
