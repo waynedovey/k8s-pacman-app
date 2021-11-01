@@ -33,7 +33,7 @@ seLinuxContext:
   type: MustRunAs
 supplementalGroups:
   type: MustRunAs
-users: 
+users:
 - system:serviceaccount:pacman-app:pacman-app
 volumes:
 - configMap
