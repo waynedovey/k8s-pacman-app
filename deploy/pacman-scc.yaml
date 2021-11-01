@@ -4,40 +4,41 @@ metadata:
   name: pacman-app
   namespace: pacman-app
 ---
-kind: SecurityContextConstraints
-allowHostDirVolumePlugin: true
-allowHostIPC: true
+allowHostIPC: false
 allowHostNetwork: true
-allowHostPID: true
+allowHostPID: false
 allowHostPorts: true
 allowPrivilegeEscalation: true
-allowPrivilegedContainer: true
-allowedCapabilities:
-- '*'
-allowedUnsafeSysctls:
-- '*'
+allowPrivilegedContainer: false
+allowedCapabilities: null
 apiVersion: security.openshift.io/v1
 defaultAddCapabilities: null
 fsGroup:
-  type: RunAsAny
-groups:
-- system:cluster-admins
-- system:nodes
-- system:masters
+  type: MustRunAs
+groups: []
+kind: SecurityContextConstraints
 metadata:
+  annotations:
   name: pacman-app-scc
-priority: 1
+priority: null
 readOnlyRootFilesystem: false
-requiredDropCapabilities: []
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
 runAsUser:
-  type: RunAsAny
+  type: MustRunAsRange
 seLinuxContext:
-  type: RunAsAny
-seccompProfiles:
-- '*'
+  type: MustRunAs
 supplementalGroups:
-  type: RunAsAny
-users:
+  type: MustRunAs
+users: 
 - system:serviceaccount:pacman-app:pacman-app
 volumes:
-- '*'
+- configMap
+- downwardAPI
+- emptyDir
+- persistentVolumeClaim
+- projected
+- secret
