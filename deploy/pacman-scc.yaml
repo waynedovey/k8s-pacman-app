@@ -4,9 +4,9 @@ metadata:
   name: pacman-app
   namespace: pacman-app
 ---
-allowHostIPC: false
+allowHostIPC: true
 allowHostNetwork: true
-allowHostPID: false
+allowHostPID: true
 allowHostPorts: true
 allowPrivilegeEscalation: true
 allowPrivilegedContainer: false
