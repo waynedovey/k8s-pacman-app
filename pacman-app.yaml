@@ -76,4 +76,4 @@ spec:
       - southeastasia
     matchLabels:
       environment: dev
-#      apps/pacman: deployed
+      apps/pacman: deployed
