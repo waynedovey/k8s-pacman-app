@@ -18,8 +18,8 @@ spec:
         name: pacman
         app.kubernetes.io/name: pacman
     spec:
-      #serviceAccount: pacman-app
-      #serviceAccountName: pacman-app
+      serviceAccount: pacman-app
+      serviceAccountName: pacman-app
       hostNetwork: true
       containers:
       - image: quay.io/jpacker/nodejs-pacman-app:green
