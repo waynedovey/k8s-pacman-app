@@ -23,46 +23,46 @@ spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
-        - resources: {}
-          readinessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-              scheme: HTTP
-              httpHeaders:
-                - name: X-Powered-By
-                  value: Express
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-              scheme: HTTP
-              httpHeaders:
-                - name: X-Powered-By
-                  value: Express
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /healthcheck
-              port: 8080
-              scheme: HTTP
-              httpHeaders:
-                - name: X-Powered-By
-                  value: Express
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
+      - resources: {}
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+            httpHeaders:
+              - name: X-Powered-By
+                value: Express
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+            httpHeaders:
+              - name: X-Powered-By
+                value: Express
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+            httpHeaders:
+              - name: X-Powered-By
+                value: Express
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
       - image: quay.io/jpacker/nodejs-pacman-app:green
         name: pacman
         ports:
