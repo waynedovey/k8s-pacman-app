@@ -63,7 +63,7 @@ spec:
       #     periodSeconds: 10
       #     successThreshold: 1
       #     failureThreshold: 3
-      - image: quay.io/wdovey/pacman-app:v2
+      - image: quay.io/wdovey/pacman-app:v3
         name: pacman
         ports:
         - containerPort: 8080
