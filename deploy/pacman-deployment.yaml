@@ -72,7 +72,8 @@ spec:
           name: pacman
           env:
             - name: MONGO_SERVICE_HOST
-              value: mongodb.pacman-app.svc.cluster.local
+              #value: mongodb.pacman-app.svc.cluster.local
+              value: pacman-mongos.pacman-app.svc.cluster.local
             - name: MONGO_AUTH_USER
               valueFrom:
                 secretKeyRef:
