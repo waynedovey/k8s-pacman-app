@@ -72,7 +72,7 @@ spec:
           name: pacman
           env:
             - name: MONGO_SERVICE_HOST
-              value: mongo1.pacman-app.svc.clusterset.local
+              value: mongo1.pacman-app.svc.clusterset.local,mongo2.pacman-app.svc.clusterset.local,mongo3.pacman-app.svc.clusterset.local,mongo4.pacman-app.svc.clusterset.local,mongo5.pacman-app.svc.clusterset.local
               #value: mongo2.pacman-app.svc.clusterset.local
             - name: MONGO_AUTH_USER
               valueFrom:
@@ -86,6 +86,8 @@ spec:
                   key: database-password
             - name: MONGO_DATABASE
               value: pacman
+            - name: MONGO_REPLICA_SET
+              value: rs0
             - name: MY_MONGO_PORT
               value: '27017'
             - name: MONGO_USE_SSL
