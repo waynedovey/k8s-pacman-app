@@ -73,10 +73,7 @@ spec:
           env:
             - name: MONGO_SERVICE_HOST
               #value: mongodb.pacman-app.svc.cluster.local
-              #value: sydney-cluster-mongos.pacman-app.svc.cluster.local
-              #value: melbourne-cluster-mongos.pacman-app.svc.cluster.local
-              #value: a4b4c8534d9d64400a47a4514d9ed627-757767549.ap-southeast-1.elb.amazonaws.com
-              value: mongodb.primary.digitaldovey.com
+              value: mongo3.pacman-app.svc.clusterset.local
             - name: MONGO_AUTH_USER
               valueFrom:
                 secretKeyRef:
