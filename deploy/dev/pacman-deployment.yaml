@@ -106,7 +106,7 @@ spec:
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: File
           image: 'quay.io/wdovey/pacman-app:3.0'
-      serviceAccount: pacman-app
+      serviceAccount: pacman-app-dev
       dnsPolicy: ClusterFirstWithHostNet
   strategy:
     type: RollingUpdate
