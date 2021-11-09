@@ -22,7 +22,7 @@ spec:
         name: pacman
     spec:
       restartPolicy: Always
-      serviceAccountName: pacman-app
+      serviceAccountName: pacman-app-dev
       schedulerName: default-scheduler
       hostNetwork: true
       terminationGracePeriodSeconds: 30
