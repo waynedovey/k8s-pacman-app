@@ -3,7 +3,7 @@ apiVersion: apps/v1
 metadata:
   annotations:
   name: pacman
-  namespace: pacman-app
+  namespace: pacman-app-qa
   labels:
     app.kubernetes.io/name: pacman
     app.kubernetes.io/part-of: pacman-app
@@ -22,7 +22,7 @@ spec:
         name: pacman
     spec:
       restartPolicy: Always
-      serviceAccountName: pacman-app
+      serviceAccountName: pacman-app-qa
       schedulerName: default-scheduler
       hostNetwork: true
       terminationGracePeriodSeconds: 30
@@ -84,7 +84,7 @@ spec:
                   name: mongodb-users-secret
                   key: database-password
             - name: MONGO_DATABASE
-              value: pacman
+              value: pacman-qa
             - name: MONGO_REPLICA_SET
               value: rs0
             - name: MY_MONGO_PORT
@@ -106,7 +106,7 @@ spec:
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: File
           image: 'quay.io/wdovey/pacman-app:3.0'
-      serviceAccount: pacman-app
+      serviceAccount: pacman-app-qa
       dnsPolicy: ClusterFirstWithHostNet
   strategy:
     type: RollingUpdate

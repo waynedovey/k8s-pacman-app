@@ -84,7 +84,7 @@ spec:
                   name: mongodb-users-secret
                   key: database-password
             - name: MONGO_DATABASE
-              value: pacman
+              value: pacman-dev
             - name: MONGO_REPLICA_SET
               value: rs0
             - name: MY_MONGO_PORT
