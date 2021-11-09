@@ -3,8 +3,8 @@
 apiVersion: app.k8s.io/v1beta1
 kind: Application
 metadata:
-  name: pacman-app-dev
-  namespace: pacman-app-dev
+  name: pacman-app-prod
+  namespace: pacman-app-prod
 spec:
   componentKinds:
   - group: apps.open-cluster-management.io

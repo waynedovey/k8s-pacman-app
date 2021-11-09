@@ -3,7 +3,7 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: Channel
 metadata:
   name: pacman-app-latest
-  namespace: pacman-app-dev
+  namespace: pacman-app-qa
   labels:
     app.kubernetes.io/name: pacman
   annotations:

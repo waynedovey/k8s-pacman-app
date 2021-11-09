@@ -6,15 +6,15 @@ metadata:
   annotations:
     apps.open-cluster-management.io/git-branch: main
     apps.open-cluster-management.io/github-path: deploy
-  name: pacman-app-dev
-  namespace: pacman-app-dev
+  name: pacman-app-prod
+  namespace: pacman-app-prod
   labels:
-    app.kubernetes.io/name: pacman-dev
+    app.kubernetes.io/name: pacman-prod
 spec:
-  channel: pacman-app-dev/pacman-app-dev-latest
+  channel: pacman-app-prod/pacman-app-prod-latest
 #  hooksecretref:
 #    name: toweraccess
   placement:
     placementRef:
       kind: PlacementRule
-      name: pacman-dev-clusters
+      name: pacman-prod-clusters
