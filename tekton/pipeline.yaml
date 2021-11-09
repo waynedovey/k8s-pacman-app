@@ -1,0 +1,165 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: pacman-app-pipeline
+spec:
+# ACM addition
+  workspaces:
+  - name: shared-workspace
+
+  resources:
+    - name: pacman-app-git
+      type: git
+    - name: pacman-app-image-dev
+      type: image
+    - name: pacman-app-image-stage
+      type: image
+
+  params:
+    - name: APP_NAME
+      description: The name of the application
+      default: 'pacman-app-tekton'
+    - name: APP_VERSION
+      description: The version of the application
+      default: '1.0'
+    - name: DEPLOY_PROJECT
+      description: The project where you deploy the app
+      default: 'pacman-app-dev'
+    - name: PROMOTE_PROJECT
+      description: The project where you deploy the app
+      default: 'pacman-app-stage'
+# ACM addition
+    # - name: deployment-name
+    #   type: string
+    #   description: name of the deployment to be patched
+    - name: git-url
+      type: string
+      description: url of the git repo for the code of deployment
+      default: "https://github.com/waynedovey/k8s-pacman-app.git"
+    - name: git-revision
+      type: string
+      description: revision to be used from repo of the code for deployment
+      default: "main"
+
+  tasks:
+  - name: build
+    taskRef:
+      name: s2i-nodejs
+    resources:
+      inputs:
+        - name: source
+          resource: pacman-app-git
+      outputs:
+        - name: image
+          resource: pacman-app-image-dev
+
+  - name: deploy
+    taskRef:
+      name: deploy-pacman-app
+    runAfter:
+      - build
+    params:
+        - name: APP_NAME
+          value: "$(params.APP_NAME)"
+        - name: APP_VERSION
+          value: "$(params.APP_VERSION)"
+        - name: DEPLOY_PROJECT
+          value: "$(params.DEPLOY_PROJECT)"
+    resources:
+      inputs:
+        - name: image
+          resource: pacman-app-image-dev
+
+  - name: test
+    taskRef:
+      name: test-pacman-app
+    runAfter:
+      - deploy
+    params:
+      - name: APP_NAME
+        value: "$(params.APP_NAME)"
+      - name: APP_VERSION
+        value: "$(params.APP_VERSION)"
+      - name: DEPLOY_PROJECT
+        value: "$(params.DEPLOY_PROJECT)"
+
+  - name: promote
+    taskRef:
+      name: promote-pacman-app
+    runAfter:
+      - test
+    params:
+      - name: APP_NAME
+        value: "$(params.APP_NAME)"
+      - name: APP_VERSION
+        value: "$(params.APP_VERSION)"
+      - name: DEPLOY_PROJECT
+        value: "$(params.DEPLOY_PROJECT)"
+      - name: PROMOTE_PROJECT
+        value: "$(params.PROMOTE_PROJECT)"
+    resources:
+      inputs:
+        - name: image
+          resource: pacman-app-image-dev
+      outputs:
+        - name: image
+          resource: pacman-app-image-stage
+
+  - name: fetch-acm-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+    runAfter:
+    - promote
+
+  - name: create-namespaces
+    taskRef:
+      kind: Task
+      name: create-namespaces
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - fetch-acm-repository
+
+  - name: pacman-app-dev-deployment
+    taskRef:
+      kind: Task
+      name: pacman-app-dev-deployment
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - create-namespaces
+
+  - name: pacman-app-qa-deployment
+    taskRef:
+      kind: Task
+      name: pacman-app-qa-deployment
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - pacman-app-dev-deployment
+
+  - name: pacman-app-prod-deployment
+    taskRef:
+      kind: Task
+      name: pacman-app-prod-deployment
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - pacman-app-qa-deployment
