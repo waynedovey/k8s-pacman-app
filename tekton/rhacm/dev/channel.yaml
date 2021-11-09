@@ -5,9 +5,9 @@ metadata:
   name: pacman-app-latest
   namespace: pacman-app-dev
   labels:
-    app.kubernetes.io/name: pacman-dev
+    app.kubernetes.io/name: pacman
   annotations:
-    apps.open-cluster-management.io/github-path: deploy
+    apps.open-cluster-management.io/github-path: deploy/dev
 spec:
   type: GitHub
   pathname: https://github.com/waynedovey/k8s-pacman-app.git

@@ -5,13 +5,13 @@ kind: Subscription
 metadata:
   annotations:
     apps.open-cluster-management.io/git-branch: main
-    apps.open-cluster-management.io/github-path: deploy
+    apps.open-cluster-management.io/github-path: deploy/dev
   name: pacman-app-dev
   namespace: pacman-app-dev
   labels:
-    app.kubernetes.io/name: pacman-dev
+    app.kubernetes.io/name: pacman
 spec:
-  channel: pacman-app-dev/pacman-app-dev-latest
+  channel: pacman-app-dev/pacman-app-latest
 #  hooksecretref:
 #    name: toweraccess
   placement:
