@@ -98,6 +98,8 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: spec.nodeName
+            - name: ENVIROMENT
+              value: pacman-dev
           ports:
             - name: http-server
               hostPort: 8080
@@ -105,7 +107,7 @@ spec:
               protocol: TCP
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: File
-          image: 'quay.io/wdovey/pacman-app:4.0'
+          image: 'quay.io/wdovey/pacman-app:5.0'
       serviceAccount: pacman-app-dev
       dnsPolicy: ClusterFirstWithHostNet
   strategy:
