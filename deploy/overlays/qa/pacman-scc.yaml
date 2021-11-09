@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pacman-app
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+groups: []
+metadata:
+  name: pacman-app-scc
+users:
+- system:serviceaccount:pacman-app-qa:pacman-app

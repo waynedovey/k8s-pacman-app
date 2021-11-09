@@ -1,8 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: pacman-app-qa
-  namespace: pacman-app-qa
+  name: pacman-app
 ---
 allowHostIPC: true
 allowHostNetwork: true
@@ -19,7 +18,7 @@ groups: []
 kind: SecurityContextConstraints
 metadata:
   annotations:
-  name: pacman-app-qa-scc
+  name: pacman-app-scc
 priority: null
 readOnlyRootFilesystem: false
 requiredDropCapabilities:
@@ -34,6 +33,6 @@ seLinuxContext:
 supplementalGroups:
   type: MustRunAs
 users:
-- system:serviceaccount:pacman-app-qa:pacman-app-qa
+- system:serviceaccount:pacman-app:pacman-app
 volumes:
 - '*'

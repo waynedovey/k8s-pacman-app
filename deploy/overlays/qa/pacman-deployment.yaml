@@ -1,0 +1,18 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  annotations:
+  name: pacman
+spec:
+  replicas: 1
+  selector:
+    spec:
+      containers:
+        - resources: {}
+          env:
+            - name: MONGO_DATABASE
+              value: pacman-dev
+            - name: ENVIRONMENT
+              value: pacman-dev
+          image: 'quay.io/wdovey/pacman-app:5.0'
+status: {}
