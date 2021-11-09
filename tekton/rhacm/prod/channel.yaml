@@ -5,7 +5,7 @@ metadata:
   name: pacman-app-latest
   namespace: pacman-app-prod
   labels:
-    app.kubernetes.io/name: pacman
+    app.kubernetes.io/name: pacman-prod
   annotations:
     apps.open-cluster-management.io/github-path: deploy
 spec:

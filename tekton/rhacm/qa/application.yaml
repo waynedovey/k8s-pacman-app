@@ -15,4 +15,4 @@ spec:
     - key: app.kubernetes.io/name
       operator: In
       values:
-      - pacman
+      - pacman-qa
