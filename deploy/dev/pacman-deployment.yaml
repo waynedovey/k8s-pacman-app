@@ -67,7 +67,7 @@ spec:
             timeoutSeconds: 1
             periodSeconds: 10
             successThreshold: 1
-            failureThreshold: 3                        
+            failureThreshold: 3
           terminationMessagePath: /dev/termination-log
           name: pacman
           env:
@@ -98,7 +98,7 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: spec.nodeName
-            - name: ENVIROMENT
+            - name: ENVIRONMENT
               value: pacman-dev
           ports:
             - name: http-server
