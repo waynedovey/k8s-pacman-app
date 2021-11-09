@@ -106,7 +106,6 @@ spec:
               protocol: TCP
           imagePullPolicy: IfNotPresent
           terminationMessagePolicy: File
-          image: 'quay.io/wdovey/pacman-app:x.x'
       serviceAccount: pacman-app
       dnsPolicy: ClusterFirstWithHostNet
   strategy:

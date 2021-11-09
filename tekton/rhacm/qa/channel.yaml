@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: pacman-qa
   annotations:
-    apps.open-cluster-management.io/github-path: deploy
+    apps.open-cluster-management.io/github-path: deploy/kustomize-output/qa
 spec:
   type: GitHub
   pathname: https://github.com/waynedovey/k8s-pacman-app.git
