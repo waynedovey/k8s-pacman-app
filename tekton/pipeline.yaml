@@ -46,6 +46,23 @@ spec:
 
   tasks:
 
+  - name:
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+
   - name: create-namespaces
     taskRef:
       kind: Task
@@ -53,6 +70,8 @@ spec:
     workspaces:
     - name: source
       workspace: shared-workspace
+    runAfter:
+    - fetch-acm-repository
 
   - name: build
     taskRef:
@@ -119,25 +138,6 @@ spec:
         - name: image
           resource: pacman-app-image-stage
 
-  - name: fetch-acm-repository
-    taskRef:
-      name: git-clone
-      kind: ClusterTask
-    workspaces:
-    - name: output
-      workspace: shared-workspace
-    params:
-    - name: url
-      value: $(params.git-url)
-    - name: subdirectory
-      value: ""
-    - name: deleteExisting
-      value: "true"
-    - name: revision
-      value: $(params.git-revision)
-    runAfter:
-    - promote
-
   - name: pacman-app-dev-deployment
     taskRef:
       kind: Task
@@ -146,7 +146,7 @@ spec:
     - name: source
       workspace: shared-workspace
     runAfter:
-    - fetch-acm-repository
+    - promote-pacman-app
 
   - name: pacman-app-qa-deployment
     taskRef:
