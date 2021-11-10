@@ -27,7 +27,7 @@ spec:
               value: pacman-dev
             - name: ENVIRONMENT
               value: pacman-dev
-          image: 'quay.io/wdovey/pacman-app:8.0'
+          image: 'quay.io/wdovey/pacman-app:${APP_VERSION}'
       serviceAccount: pacman-app
   strategy:
 status: {}
