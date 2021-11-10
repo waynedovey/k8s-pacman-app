@@ -61,7 +61,7 @@ spec:
             git config --global user.name "Tekton Admin"
             git remote remove origin
             git remote add origin https://$GITHUBTOKEN@github.com/waynedovey/k8s-pacman-app.git
-            git add deploy/kustomize-output/dev/dev.yaml
+            git add deploy/kustomize-output/qa/qa.yaml
             git commit -m "bump version qa $APP_VERSION"
             git push origin HEAD:main
         volumeMounts:
@@ -86,7 +86,7 @@ spec:
             git config --global user.name "Tekton Admin"
             git remote remove origin
             git remote add origin https://$GITHUBTOKEN@github.com/waynedovey/k8s-pacman-app.git
-            git add deploy/kustomize-output/dev/dev.yaml
+            git add deploy/kustomize-output/prod/prod.yaml
             git commit -m "bump version prod $APP_VERSION"
             git push origin HEAD:main
         volumeMounts:
