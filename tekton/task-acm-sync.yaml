@@ -4,9 +4,6 @@ metadata:
   name: acm-sync
 spec:
   inputs:
-    resources:
-      - name: image
-        type: image
     params:
       - name: APP_NAME
         description: The name of the application
@@ -20,27 +17,44 @@ spec:
         description: The project where you deploy the app
         default: 'pacman-app-dev'
         type: string
-      - name: PROMOTE_PROJECT
-        description: The project where you promote the app
-        default: 'pacman-app-qa'
-        type: string
 
-  outputs:
-    resources:
-      - name: image
-        type: image
+  workspaces:
+    - name: source
 
   steps:
       - name: acm-sync-dev
-        image: quay.io/eformat/openshift-kustomize:latest
+        image: quay.io/wdovey/openshift-kustomize:latest
         workingDir: /workspace/source
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            echo "$APP_VERSION"
+            echo "$(params.APP_VERSION)"
+            export APP_VERSION="$(params.APP_VERSION)"
+            export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/dev | envsubst > deploy/kustomize-output/dev/dev.yaml
+            git config --global user.email "tektonadmin@redhat.com"
+            git config --global user.name "Tekton Admin"
             git remote remove origin
-            git remote add origin https://xxxx@github.com/waynedovey/k8s-pacman-app.git
+            git remote add origin https://$GITHUBTOKEN@github.com/waynedovey/k8s-pacman-app.git
             git add deploy/kustomize-output/dev/dev.yaml
             git commit -m "bump version $APP_VERSION"
-            git push
+            git push origin HEAD:main
+        volumeMounts:
+          - mountPath: /var/lib/containers
+            name: varlibcontainers
+          - name: github-token
+            mountPath: /etc/secret-volume
+            readOnly: true
+        securityContext:
+          privileged: true
+  volumes:
+    - emptyDir: {}
+      name: varlibcontainers
+    - name: github-token
+      secret:
+        secretName: github-token
+        items:
+          - key: GITHUB-TOKEN
+            path: github.token
+
+

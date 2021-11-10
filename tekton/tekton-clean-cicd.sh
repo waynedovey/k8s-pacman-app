@@ -8,6 +8,7 @@ oc delete -f task-deploy.yaml
 oc delete -f task-test.yaml
 oc delete -f task-promote.yaml
 oc delete -f quay-secret.yaml
+oc delete -f github-token-secret.yaml
 
 # ACM 
 
@@ -15,6 +16,8 @@ oc delete -f task-create-namespaces.yaml
 oc delete -f task-create-dev-app.yaml
 oc delete -f task-create-qa-app.yaml
 oc delete -f task-create-prod-app.yaml
+
+oc delete -f task-acm-sync.yaml
 
 oc delete project pacman-app-dev
 oc delete project pacman-app-qa

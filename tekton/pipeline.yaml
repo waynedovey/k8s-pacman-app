@@ -134,6 +134,23 @@ spec:
         - name: image
           resource: pacman-app-image-stage
 
+  - name: acm-sync
+    taskRef:
+      kind: Task
+      name: acm-sync
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - promote
+    params:
+      - name: APP_NAME
+        value: "$(params.APP_NAME)"
+      - name: APP_VERSION
+        value: "$(params.APP_VERSION)"
+      - name: DEPLOY_PROJECT
+        value: "$(params.DEPLOY_PROJECT)"
+
   - name: pacman-app-dev-deployment
     taskRef:
       kind: Task
@@ -163,13 +180,3 @@ spec:
       workspace: shared-workspace
     runAfter:
     - pacman-app-qa-deployment
-
-  - name: acm-sync
-    taskRef:
-      kind: Task
-      name: acm-sync
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    runAfter:
-    - promote-pacman-app
