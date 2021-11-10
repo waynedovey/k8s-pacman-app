@@ -61,7 +61,7 @@ spec:
         - name: ENVIRONMENT
           value: pacman-prod
         - name: MONGO_SERVICE_HOST
-          value: mongo1.pacman-app.svc.clusterset.local,mongo2.pacman-app.svc.clusterset.local,mongo3.pacman-app.svc.clusterset.local
+          value: mongo1.mongodb-cluster.svc.clusterset.local,mongo2.mongodb-cluster.svc.clusterset.local,mongo3.mongodb-cluster.svc.clusterset.local
         - name: MONGO_AUTH_USER
           valueFrom:
             secretKeyRef:
