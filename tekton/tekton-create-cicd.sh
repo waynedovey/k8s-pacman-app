@@ -16,4 +16,4 @@ oc apply -f task-create-qa-app.yaml
 oc apply -f task-create-prod-app.yaml
 
 #oc new-project pacman-app-dev
-#oc new-project pacman-app-stage
+#oc new-project pacman-app-qa

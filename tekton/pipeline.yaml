@@ -27,7 +27,7 @@ spec:
       default: 'pacman-app-dev'
     - name: PROMOTE_PROJECT
       description: The project where you deploy the app
-      default: 'pacman-app-stage'
+      default: 'pacman-app-qa'
 # ACM addition
     # - name: deployment-name
     #   type: string
@@ -41,12 +41,8 @@ spec:
       description: revision to be used from repo of the code for deployment
       default: "main"
 
-
-
-
   tasks:
-
-  - name:
+  - name: fetch-acm-repository
     taskRef:
       name: git-clone
       kind: ClusterTask
@@ -146,7 +142,7 @@ spec:
     - name: source
       workspace: shared-workspace
     runAfter:
-    - promote-pacman-app
+    - create-namespaces
 
   - name: pacman-app-qa-deployment
     taskRef:

@@ -17,4 +17,5 @@ oc delete -f task-create-qa-app.yaml
 oc delete -f task-create-prod-app.yaml
 
 oc delete project pacman-app-dev
-oc delete project pacman-app-stage
+oc delete project pacman-app-qa
+oc delete project pacman-app-prod

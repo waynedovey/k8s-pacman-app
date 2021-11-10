@@ -13,11 +13,11 @@ spec:
     - name: pacman-app-image-dev
       resourceRef:
         name: pacman-app-image-dev
-    - name: pacman-app-image-stage
+    - name: pacman-app-image-qa
       resourceRef:
-        name: pacman-app-image-stage
+        name: pacman-app-image-qa
   params:
     - name: DEPLOY_ENVIRONMENT
       value: 'pacman-app-dev'
     - name: PROMOTE_ENVIRONMENT
-      value: 'pacman-app-stage'
+      value: 'pacman-app-qa'
