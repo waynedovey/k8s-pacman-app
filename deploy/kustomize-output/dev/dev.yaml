@@ -85,7 +85,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        image: quay.io/wdovey/pacman-app:5.0
+        image: quay.io/wdovey/pacman-app:6.0
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
