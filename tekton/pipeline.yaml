@@ -41,7 +41,19 @@ spec:
       description: revision to be used from repo of the code for deployment
       default: "main"
 
+
+
+
   tasks:
+
+  - name: create-namespaces
+    taskRef:
+      kind: Task
+      name: create-namespaces
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+
   - name: build
     taskRef:
       name: s2i-nodejs
@@ -52,6 +64,8 @@ spec:
       outputs:
         - name: image
           resource: pacman-app-image-dev
+    runAfter:
+    - create-namespaces
 
   - name: deploy
     taskRef:
@@ -124,16 +138,6 @@ spec:
     runAfter:
     - promote
 
-  - name: create-namespaces
-    taskRef:
-      kind: Task
-      name: create-namespaces
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    runAfter:
-    - fetch-acm-repository
-
   - name: pacman-app-dev-deployment
     taskRef:
       kind: Task
@@ -142,7 +146,7 @@ spec:
     - name: source
       workspace: shared-workspace
     runAfter:
-    - create-namespaces
+    - fetch-acm-repository
 
   - name: pacman-app-qa-deployment
     taskRef:
