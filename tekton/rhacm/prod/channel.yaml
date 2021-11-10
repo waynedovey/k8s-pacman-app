@@ -5,9 +5,10 @@ metadata:
   name: pacman-app-latest
   namespace: pacman-app-prod
   labels:
-    app.kubernetes.io/name: pacman-prod
+    app.kubernetes.io/name: pacman
   annotations:
     apps.open-cluster-management.io/github-path: deploy/kustomize-output/prod
+    #apps.open-cluster-management.io/reconcile-rate: off
 spec:
   type: GitHub
   pathname: https://github.com/waynedovey/k8s-pacman-app.git

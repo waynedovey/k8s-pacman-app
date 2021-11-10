@@ -9,9 +9,9 @@ metadata:
   name: pacman-app-prod
   namespace: pacman-app-prod
   labels:
-    app.kubernetes.io/name: pacman-prod
+    app.kubernetes.io/name: pacman
 spec:
-  channel: pacman-app-prod/pacman-app-prod-latest
+  channel: pacman-app-prod/pacman-app-latest
 #  hooksecretref:
 #    name: toweraccess
   placement:
