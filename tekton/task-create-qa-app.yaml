@@ -6,11 +6,11 @@ metadata:
   name: pacman-app-qa-deployment
 spec:
   workspaces:
-    - name: source  
+    - name: source
   steps:
     - name: pacman-app-qa-deployment
       image: quay.io/openshift/origin-cli:latest
-      workingDir: /workspace/source  
+      workingDir: /workspace/source
       command: ["/bin/bash", "-c"]
       args:
         - |-
