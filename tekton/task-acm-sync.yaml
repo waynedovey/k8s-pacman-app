@@ -28,8 +28,8 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            echo "$(params.APP_VERSION)"
-            export APP_VERSION="$(params.APP_VERSION)"
+            echo "'$(params.APP_VERSION)'"
+            export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/dev | envsubst > deploy/kustomize-output/dev/dev.yaml
             git config --global user.email "tektonadmin@redhat.com"
@@ -53,8 +53,8 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            echo "$(params.APP_VERSION)"
-            export APP_VERSION="$(params.APP_VERSION)"
+            echo "'$(params.APP_VERSION)'"
+            export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/qa | envsubst > deploy/kustomize-output/qa/qa.yaml
             git config --global user.email "tektonadmin@redhat.com"
@@ -78,8 +78,8 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            echo "$(params.APP_VERSION)"
-            export APP_VERSION="$(params.APP_VERSION)"
+            echo "'$(params.APP_VERSION)'"
+            export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/prod | envsubst > deploy/kustomize-output/prod/prod.yaml
             git config --global user.email "tektonadmin@redhat.com"
