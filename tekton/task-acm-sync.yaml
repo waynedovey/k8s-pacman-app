@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: promote-pacman-app
+  name: acm-sync
 spec:
   inputs:
     resources:
@@ -31,93 +31,16 @@ spec:
         type: image
 
   steps:
-      - name: promote-image
-        image: quay.io/openshift/origin-cli:latest
+      - name: acm-sync-dev
+        image: quay.io/eformat/openshift-kustomize:latest
         workingDir: /workspace/source
         command: ["/bin/bash", "-c"]
         args:
           - |-
-            oc tag $(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):latest $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):latest
-            oc tag $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):latest $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
-            oc get deployment $(inputs.params.APP_NAME) -n $(inputs.params.PROMOTE_PROJECT)
-            if [[ $? -ne 0 ]]
-            then
-                oc new-app -i $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION) -n $(inputs.params.PROMOTE_PROJECT)
-            else
-                echo "Application already exists. New version = $(inputs.params.APP_VERSION)"
-            fi
-      - name: expose-app
-        image: quay.io/openshift/origin-cli:latest
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            oc get svc $(inputs.params.APP_NAME) -n $(inputs.params.PROMOTE_PROJECT)
-            if [[ $? -ne 0 ]]
-            then
-                oc expose svc/$(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
-            else
-                echo "Application already exists."
-            fi
-      - name: set-app-labels
-        image: quay.io/openshift/origin-cli:latest
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            oc label deployment/$(inputs.params.APP_NAME) app.kubernetes.io/name=nodejs --overwrite -n $(inputs.params.PROMOTE_PROJECT)
-            oc label deployment/$(inputs.params.APP_NAME) app.version=$(inputs.params.APP_VERSION) --overwrite -n $(inputs.params.PROMOTE_PROJECT)
-            oc set env deployment/$(inputs.params.APP_NAME) app.version=$(inputs.params.APP_VERSION) -n $(inputs.params.PROMOTE_PROJECT)
-      - name: set-app-probes
-        image: quay.io/openshift/origin-cli:latest
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            oc set probe deployment/$(inputs.params.APP_NAME) --remove --readiness --liveness -n $(inputs.params.PROMOTE_PROJECT)
-            oc set probe deployment/$(inputs.params.APP_NAME) --readiness --get-url=http://:8080/ --initial-delay-seconds=30 -n $(inputs.params.PROMOTE_PROJECT)
-      - name: set-app-autoscale
-        image: quay.io/openshift/origin-cli:latest
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            oc get hpa $(inputs.params.APP_NAME)  -n $(inputs.params.PROMOTE_PROJECT)
-            if [[ $? -ne 0 ]]
-            then
-                oc autoscale deployment $(inputs.params.APP_NAME) --min 1 --max 2 --cpu-percent=75 -n $(inputs.params.PROMOTE_PROJECT)
-            else
-                echo "Application autoscale is already configured."
-            fi
-      - name: describe-app-triggers
-        image: quay.io/openshift/origin-cli:latest
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            oc set triggers deployment/$(inputs.params.APP_NAME) -n $(inputs.params.PROMOTE_PROJECT)
-      - name: push-to-quay
-        image: registry.redhat.io/rhel8/buildah
-        workingDir: /workspace/source
-        command: ["/bin/bash", "-c"]
-        args:
-          - |-
-            buildah pull image-registry.openshift-image-registry.svc:5000/$(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
-            buildah push --authfile /etc/secret-volume/config.json $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION) docker://quay.io/wdovey/pacman-app:$(inputs.params.APP_VERSION)
-        volumeMounts:
-          - mountPath: /var/lib/containers
-            name: varlibcontainers
-          - name: quay-auth-secret
-            mountPath: /etc/secret-volume
-            readOnly: true
-        securityContext:
-          privileged: true
-  volumes:
-    - emptyDir: {}
-      name: varlibcontainers
-    - name: quay-auth-secret
-      secret:
-        secretName: dockerconfigjson
-        items:
-          - key: .dockerconfigjson
-            path: config.json
+            echo "$APP_VERSION"
+            kustomize build deploy/overlays/dev | envsubst > deploy/kustomize-output/dev/dev.yaml
+            git remote remove origin
+            git remote add origin https://xxxx@github.com/waynedovey/k8s-pacman-app.git
+            git add deploy/kustomize-output/dev/dev.yaml
+            git commit -m "bump version $APP_VERSION"
+            git push

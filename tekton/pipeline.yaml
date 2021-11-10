@@ -163,3 +163,13 @@ spec:
       workspace: shared-workspace
     runAfter:
     - pacman-app-qa-deployment
+
+  - name: acm-sync
+    taskRef:
+      kind: Task
+      name: acm-sync
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - promote-pacman-app
