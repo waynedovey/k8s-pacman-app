@@ -32,6 +32,7 @@ spec:
             export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/dev | envsubst > deploy/kustomize-output/dev/dev.yaml
+            sed -i 's/\\//g' deploy/kustomize-output/dev/dev.yaml
             git config --global user.email "tektonadmin@redhat.com"
             git config --global user.name "Tekton Admin"
             git remote remove origin
@@ -57,6 +58,7 @@ spec:
             export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/qa | envsubst > deploy/kustomize-output/qa/qa.yaml
+            sed -i 's/\\//g' deploy/kustomize-output/qa/qa.yaml
             git config --global user.email "tektonadmin@redhat.com"
             git config --global user.name "Tekton Admin"
             git remote remove origin
@@ -82,6 +84,7 @@ spec:
             export APP_VERSION="'$(params.APP_VERSION)'"
             export GITHUBTOKEN=$(cat /etc/secret-volume/github.token)
             kustomize build deploy/overlays/prod | envsubst > deploy/kustomize-output/prod/prod.yaml
+            sed -i 's/\\//g' deploy/kustomize-output/prod/prod.yaml
             git config --global user.email "tektonadmin@redhat.com"
             git config --global user.name "Tekton Admin"
             git remote remove origin
