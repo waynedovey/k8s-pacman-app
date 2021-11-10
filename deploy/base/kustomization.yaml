@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - pacman-deployment.yaml
   - pacman-route.yaml
-  - pacman-scc.yaml
   - pacman-secret.yaml
   - pacman-service.yaml
   - pacman-tm-route.yaml

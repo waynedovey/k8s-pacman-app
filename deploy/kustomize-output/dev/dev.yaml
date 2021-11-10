@@ -177,13 +177,17 @@ allowHostPID: true
 allowHostPorts: true
 allowPrivilegeEscalation: false
 allowPrivilegedContainer: false
+allowedCapabilities: null
 apiVersion: security.openshift.io/v1
+defaultAddCapabilities: null
 fsGroup:
   type: MustRunAs
 groups: []
 kind: SecurityContextConstraints
 metadata:
-  name: pacman-app-scc
+  annotations: null
+  name: pacman-app-dev-scc
+priority: null
 readOnlyRootFilesystem: false
 requiredDropCapabilities:
 - KILL

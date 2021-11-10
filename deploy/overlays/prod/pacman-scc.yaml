@@ -3,10 +3,36 @@ kind: ServiceAccount
 metadata:
   name: pacman-app
 ---
+allowHostIPC: true
+allowHostNetwork: true
+allowHostPID: true
+allowHostPorts: true
+allowPrivilegeEscalation: false
+allowPrivilegedContainer: false
+allowedCapabilities: null
 apiVersion: security.openshift.io/v1
-kind: SecurityContextConstraints
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
 groups: []
+kind: SecurityContextConstraints
 metadata:
-  name: pacman-app-scc
+  annotations:
+  name: pacman-app-prod-scc
+priority: null
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
+runAsUser:
+  type: MustRunAsRange
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: MustRunAs
 users:
 - system:serviceaccount:pacman-app-prod:pacman-app
+volumes:
+- '*'
