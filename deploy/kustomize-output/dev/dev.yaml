@@ -61,7 +61,7 @@ spec:
         - name: ENVIRONMENT
           value: pacman-dev
         - name: APP_VERSION
-          value: "7.0"
+          value: "8.0"
         - name: MONGO_SERVICE_HOST
           value: mongo1.mongodb-cluster.svc.clusterset.local,mongo2.mongodb-cluster.svc.clusterset.local,mongo3.mongodb-cluster.svc.clusterset.local
         - name: MONGO_AUTH_USER
@@ -87,7 +87,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        image: quay.io/wdovey/pacman-app:7.0
+        image: quay.io/wdovey/pacman-app:8.0
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
