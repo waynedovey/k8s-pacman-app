@@ -18,6 +18,8 @@ spec:
       - ap-southeast-1
       - ap-southeast-2
       - ap-northeast-1
+      - southeastasia
+      - australia-southeast1
     matchLabels:
       environment: prod
       apps/pacman: deployed
