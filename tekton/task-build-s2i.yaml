@@ -1,60 +1,88 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: s2i-nodejs
+  namespace: pacman-app-cicd
 spec:
-  inputs:
-    resources:
+  params:
+    - default: latest
+      description: The version of the nodejs
+      name: VERSION
+      type: string
+    - default: ./
+      description: The location of the path to run s2i from.
+      name: PATH_CONTEXT
+      type: string
+    - default: 'false'
+      description: >-
+        Verify the TLS on the registry endpoint (for push/pull to a non-TLS
+        registry)
+      name: TLSVERIFY
+      type: string
+  resources:
+    inputs:
       - name: source
         type: git
-    params:
-      - name: VERSION
-        description: The version of the nodejs
-        default: 'latest'
-        type: string
-      - name: PATH_CONTEXT
-        description: The location of the path to run s2i from.
-        default: "./"
-        type: string
-      - name: TLSVERIFY
-        description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
-        default: "false"
-        type: string
-  outputs:
-    resources:
+    outputs:
       - name: image
         type: image
   steps:
-    - name: generate
+    - command:
+        - s2i
+        - build
+        - $(params.PATH_CONTEXT)
+        - >-
+          image-registry.openshift-image-registry.svc:5000/openshift/nodejs:$(params.VERSION)
+        - '--as-dockerfile'
+        - /gen-source/Dockerfile.gen
       image: registry.redhat.io/ocp-tools-43-tech-preview/source-to-image-rhel8
-      workingdir: /workspace/source
-      command: ['s2i', 'build', '$(params.PATH_CONTEXT)', 'image-registry.openshift-image-registry.svc:5000/openshift/nodejs:$(params.VERSION)', '--as-dockerfile', '/gen-source/Dockerfile.gen']
+      name: generate
+      resources: {}
+      securityContext:
+        privileged: true
       volumeMounts:
         - mountPath: /gen-source
           name: gen-source
+      workingDir: /workspace/source
+    - command:
+        - buildah
+        - bud
+        - '--tls-verify=$(inputs.params.TLSVERIFY)'
+        - '--layers'
+        - '-f'
+        - /gen-source/Dockerfile.gen
+        - '-t'
+        - $(outputs.resources.image.url)
+        - .
+      image: 'quay.io/buildah/stable:v1.11.0'
+      name: build
+      resources: {}
       securityContext:
         privileged: true
-    - name: build
-      image: quay.io/buildah/stable:v1.11.0
-      workingdir: /gen-source
-      command: ['buildah', 'bud', '--tls-verify=$(inputs.params.TLSVERIFY)', '--layers', '-f', '/gen-source/Dockerfile.gen', '-t', '$(outputs.resources.image.url)', '.']
       volumeMounts:
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
-        - name: gen-source
-          mountPath: /gen-source
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+        - mountPath: /gen-source
+          name: gen-source
+      workingDir: /gen-source
+    - command:
+        - buildah
+        - push
+        - '--tls-verify=$(inputs.params.TLSVERIFY)'
+        - $(outputs.resources.image.url)
+        - 'docker://$(outputs.resources.image.url)'
+      image: 'quay.io/buildah/stable:v1.11.0'
+      name: push
+      resources: {}
       securityContext:
         privileged: true
-    - name: push
-      image: quay.io/buildah/stable:v1.11.0
-      command: ['buildah', 'push', '--tls-verify=$(inputs.params.TLSVERIFY)', '$(outputs.resources.image.url)', 'docker://$(outputs.resources.image.url)']
       volumeMounts:
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
-      securityContext:
-        privileged: true
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
   volumes:
-    - name: varlibcontainers
-      emptyDir: {}
-    - name: gen-source
-      emptyDir: {}
+    - emptyDir: {}
+      name: varlibcontainers
+    - emptyDir: {}
+      name: gen-source
+  workspaces:
+    - name: source

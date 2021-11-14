@@ -1,6 +1,6 @@
 #!/bin/bash
 
-oc project pacman-app-cicd
+oc new-project pacman-app-cicd
 oc apply -f pipeline.yaml
 oc apply -f resources.yaml
 oc apply -f task-build-s2i.yaml
@@ -20,3 +20,6 @@ oc apply -f task-acm-sync.yaml
 
 #oc new-project pacman-app-dev
 #oc new-project pacman-app-qa
+
+oc apply -f shared-workspace-app.yaml
+oc apply -f shared-workspace-config.yaml

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+  name: shared-workspace-config
+  namespace: pacman-app-cicd
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  #storageClassName: ibmc-vpc-block-10iops-tier
+  #volumeMode: Filesystem
+  #volumeName: pvc-834b83cb-d4a5-420c-8dc5-ce729cb518fa
+status: {}
