@@ -1,0 +1,181 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: promote-pacman-app
+  namespace: pacman-app-cicd
+spec:
+  params:
+    - default: pacman-app-tekton
+      description: The name of the application
+      name: APP_NAME
+      type: string
+    - default: '1.0'
+      description: The version of the application
+      name: APP_VERSION
+      type: string
+    - default: pacman-app-dev
+      description: The project where you deploy the app
+      name: DEPLOY_PROJECT
+      type: string
+    - default: pacman-app-qa
+      description: The project where you promote the app
+      name: PROMOTE_PROJECT
+      type: string
+  resources:
+    inputs:
+      - name: image
+        type: image
+    outputs:
+      - name: image
+        type: image
+  steps:
+    - args:
+        - >-
+          oc tag
+          $(inputs.params.DEPLOY_PROJECT)/$(inputs.params.APP_NAME):latest
+          $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):latest
+
+          oc tag
+          $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):latest
+          $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+
+          oc get deployment $(inputs.params.APP_NAME) -n
+          $(inputs.params.PROMOTE_PROJECT)
+
+          if [[ $? -ne 0 ]]
+
+          then
+              oc new-app -i $(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION) -n $(inputs.params.PROMOTE_PROJECT)
+          else
+              echo "Application already exists. New version = $(inputs.params.APP_VERSION)"
+          fi
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: promote-image
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          oc get svc $(inputs.params.APP_NAME) -n
+          $(inputs.params.PROMOTE_PROJECT)
+
+          if [[ $? -ne 0 ]]
+
+          then
+              oc expose svc/$(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+          else
+              echo "Application already exists."
+          fi
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: expose-app
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          oc label deployment/$(inputs.params.APP_NAME)
+          app.kubernetes.io/name=nodejs --overwrite -n
+          $(inputs.params.PROMOTE_PROJECT)
+
+          oc label deployment/$(inputs.params.APP_NAME)
+          app.version=$(inputs.params.APP_VERSION) --overwrite -n
+          $(inputs.params.PROMOTE_PROJECT)
+
+          oc set env deployment/$(inputs.params.APP_NAME)
+          app.version=$(inputs.params.APP_VERSION) -n
+          $(inputs.params.PROMOTE_PROJECT)
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: set-app-labels
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          oc set probe deployment/$(inputs.params.APP_NAME) --remove --readiness
+          --liveness -n $(inputs.params.PROMOTE_PROJECT)
+
+          oc set probe deployment/$(inputs.params.APP_NAME) --readiness
+          --get-url=http://:8080/ --initial-delay-seconds=30 -n
+          $(inputs.params.PROMOTE_PROJECT)
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: set-app-probes
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          oc get hpa $(inputs.params.APP_NAME)  -n
+          $(inputs.params.PROMOTE_PROJECT)
+
+          if [[ $? -ne 0 ]]
+
+          then
+              oc autoscale deployment $(inputs.params.APP_NAME) --min 1 --max 2 --cpu-percent=75 -n $(inputs.params.PROMOTE_PROJECT)
+          else
+              echo "Application autoscale is already configured."
+          fi
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: set-app-autoscale
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          oc set triggers deployment/$(inputs.params.APP_NAME) -n
+          $(inputs.params.PROMOTE_PROJECT)
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: describe-app-triggers
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - >-
+          buildah pull
+          image-registry.openshift-image-registry.svc:5000/$(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+
+
+          buildah tag
+          image-registry.openshift-image-registry.svc:5000/$(inputs.params.PROMOTE_PROJECT)/$(inputs.params.APP_NAME):$(inputs.params.APP_VERSION)
+          quay.io/wdovey/pacman-app:$(inputs.params.APP_VERSION)
+
+
+          buildah push --authfile /etc/secret-volume/config.json
+          quay.io/wdovey/pacman-app:$(inputs.params.APP_VERSION)
+      command:
+        - /bin/bash
+        - '-c'
+      image: quay.io/buildah/stable
+      name: push-to-quay
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+        - mountPath: /etc/secret-volume
+          name: quay-auth-secret
+          readOnly: true
+      workingDir: /workspace/source
+  volumes:
+    - emptyDir: {}
+      name: varlibcontainers
+    - name: quay-auth-secret
+      secret:
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+        secretName: dockerconfigjson
+  workspaces:
+    - name: source

@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: pacman-app-git
+spec:
+  type: git
+  params:
+    - name: revision
+      value: master
+    - name: url
+      value: https://github.com/waynedovey/pacman.git
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: pacman-app-image-dev
+spec:
+  type: image
+  params:
+    - name: url
+      value: image-registry.openshift-image-registry.svc:5000/pacman-app-dev/pacman-app-tekton
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: pacman-app-image-stage
+spec:
+  type: image
+  params:
+    - name: url
+      value: image-registry.openshift-image-registry.svc:5000/pacman-app-qa/pacman-app-tekton

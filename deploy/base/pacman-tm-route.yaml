@@ -1,11 +1,12 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: pacman
-  namespace: pacman-app
+  name: azure-tm-pacman
   labels:
     app.kubernetes.io/name: pacman
 spec:
+  # Added for Azure TM demonstration
+  host: pacman-template.trafficmanager.net
   path: "/"
   to:
     kind: Service

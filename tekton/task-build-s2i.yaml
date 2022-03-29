@@ -1,0 +1,88 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: s2i-nodejs
+  namespace: pacman-app-cicd
+spec:
+  params:
+    - default: latest
+      description: The version of the nodejs
+      name: VERSION
+      type: string
+    - default: ./
+      description: The location of the path to run s2i from.
+      name: PATH_CONTEXT
+      type: string
+    - default: 'false'
+      description: >-
+        Verify the TLS on the registry endpoint (for push/pull to a non-TLS
+        registry)
+      name: TLSVERIFY
+      type: string
+  resources:
+    inputs:
+      - name: source
+        type: git
+    outputs:
+      - name: image
+        type: image
+  steps:
+    - command:
+        - s2i
+        - build
+        - $(params.PATH_CONTEXT)
+        - >-
+          image-registry.openshift-image-registry.svc:5000/openshift/nodejs:$(params.VERSION)
+        - '--as-dockerfile'
+        - /gen-source/Dockerfile.gen
+      image: registry.redhat.io/ocp-tools-43-tech-preview/source-to-image-rhel8
+      name: generate
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /gen-source
+          name: gen-source
+      workingDir: /workspace/source
+    - command:
+        - buildah
+        - bud
+        - '--tls-verify=$(inputs.params.TLSVERIFY)'
+        - '--layers'
+        - '-f'
+        - /gen-source/Dockerfile.gen
+        - '-t'
+        - $(outputs.resources.image.url)
+        - .
+      image: 'quay.io/buildah/stable:v1.11.0'
+      name: build
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+        - mountPath: /gen-source
+          name: gen-source
+      workingDir: /gen-source
+    - command:
+        - buildah
+        - push
+        - '--tls-verify=$(inputs.params.TLSVERIFY)'
+        - $(outputs.resources.image.url)
+        - 'docker://$(outputs.resources.image.url)'
+      image: 'quay.io/buildah/stable:v1.11.0'
+      name: push
+      resources: {}
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+  volumes:
+    - emptyDir: {}
+      name: varlibcontainers
+    - emptyDir: {}
+      name: gen-source
+  workspaces:
+    - name: source

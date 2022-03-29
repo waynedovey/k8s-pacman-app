@@ -1,0 +1,207 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pacman-app
+---
+apiVersion: v1
+data:
+  database-admin-name: cGFjbWFu
+  database-admin-password: cGFjbWFu
+  database-name: cGFjbWFu
+  database-password: cGFjbWFu
+  database-user: cGFjbWFu
+kind: Secret
+metadata:
+  name: mongodb-users-secret
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: pacman
+    name: pacman
+  name: pacman
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: pacman
+    name: pacman
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pacman
+    app.kubernetes.io/part-of: pacman-app
+    name: pacman
+  name: pacman
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pacman
+      name: pacman
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pacman
+        name: pacman
+    spec:
+      containers:
+      - env:
+        - name: MONGO_DATABASE
+          value: pacman-qa
+        - name: ENVIRONMENT
+          value: pacman-qa
+        - name: APP_VERSION
+          value: '"2.0"'
+        - name: MONGO_SERVICE_HOST
+          value: mongo1.mongodb-cluster.svc.clusterset.local,mongo2.mongodb-cluster.svc.clusterset.local,mongo3.mongodb-cluster.svc.clusterset.local
+        - name: MONGO_AUTH_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: mongodb-users-secret
+        - name: MONGO_AUTH_PWD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: mongodb-users-secret
+        - name: MONGO_REPLICA_SET
+          value: rs0
+        - name: MY_MONGO_PORT
+          value: "27017"
+        - name: MONGO_USE_SSL
+          value: "false"
+        - name: MONGO_VALIDATE_SSL
+          value: "false"
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        image: quay.io/wdovey/pacman-app:2.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            httpHeaders:
+            - name: X-Powered-By
+              value: Express
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: pacman
+        ports:
+        - containerPort: 8080
+          hostPort: 8080
+          name: http-server
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            httpHeaders:
+            - name: X-Powered-By
+              value: Express
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        startupProbe:
+          failureThreshold: 3
+          httpGet:
+            httpHeaders:
+            - name: X-Powered-By
+              value: Express
+            path: /healthcheck
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: pacman-app
+      serviceAccountName: pacman-app
+      terminationGracePeriodSeconds: 30
+status: {}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/name: pacman
+  name: azure-tm-pacman
+spec:
+  host: pacman-qa.trafficmanager.net
+  path: /
+  to:
+    kind: Service
+    name: pacman
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/name: pacman
+  name: pacman
+spec:
+  path: /
+  to:
+    kind: Service
+    name: pacman
+---
+allowHostIPC: true
+allowHostNetwork: true
+allowHostPID: true
+allowHostPorts: true
+allowPrivilegeEscalation: false
+allowPrivilegedContainer: false
+allowedCapabilities: null
+apiVersion: security.openshift.io/v1
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
+groups: []
+kind: SecurityContextConstraints
+metadata:
+  annotations: null
+  name: pacman-app-qa-scc
+priority: null
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
+runAsUser:
+  type: MustRunAsRange
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: MustRunAs
+users:
+- system:serviceaccount:pacman-app-qa:pacman-app
+volumes:
+- '*'

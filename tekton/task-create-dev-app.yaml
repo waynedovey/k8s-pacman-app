@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  annotations:
+  name: pacman-app-dev-deployment
+  namespace: pacman-app-cicd
+spec:
+  steps:
+    - args:
+        - |-
+          echo "**** DEV ENVIRONMENT: Creating application on RH ACM ****"
+          oc apply -f tekton/rhacm/dev/application.yaml
+
+          echo "**** DEV ENVIRONMENT: Creating channel on RH ACM ****"
+          oc apply -f tekton/rhacm/dev/channel.yaml
+
+          echo "**** DEV ENVIRONMENT: Creating placementrule on RH ACM ****"
+          oc apply -f tekton/rhacm/dev/placement-rule.yaml
+
+          echo "**** DEV ENVIRONMENT: Creating subscription on RH ACM ****"
+          oc apply -f tekton/rhacm/dev/subscription.yaml
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'quay.io/openshift/origin-cli:latest'
+      name: pacman-app-dev-deployment
+      resources: {}
+      workingDir: /workspace/source
+  workspaces:
+    - name: source

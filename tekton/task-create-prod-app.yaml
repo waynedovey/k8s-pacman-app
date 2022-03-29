@@ -1,0 +1,27 @@
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pacman-app-prod-deployment
+spec:
+  workspaces:
+    - name: source  
+  steps:
+    - name: pacman-app-prod-deployment
+      image: quay.io/openshift/origin-cli:latest
+      workingDir: /workspace/source  
+      command: ["/bin/bash", "-c"]
+      args:
+        - |-
+          echo "**** PRD ENVIRONMENT: Creating application on RH ACM ****"
+          oc apply -f tekton/rhacm/prod/application.yaml
+
+          echo "**** PRD ENVIRONMENT: Creating channel on RH ACM ****"
+          oc apply -f tekton/rhacm/prod/channel.yaml
+
+          echo "**** PRD ENVIRONMENT: Creating placementrule on RH ACM ****"
+          oc apply -f tekton/rhacm/prod/placement-rule.yaml
+
+          echo "**** PRD ENVIRONMENT: Creating subscription on RH ACM ****"
+          oc apply -f tekton/rhacm/prod/subscription.yaml

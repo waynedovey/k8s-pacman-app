@@ -1,0 +1,25 @@
+
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: pacman-qa-clusters
+  namespace: pacman-app-qa
+spec:
+  clusterConditions:
+  - status: "True"
+    type: ManagedClusterConditionAvailable
+  clusterSelector:
+    clusterReplicas: 2
+    matchExpressions:
+    - key: region
+      operator: In
+      values:
+      - ap-southeast-1
+      - ap-southeast-2
+      - ap-northeast-1
+      - southeastasia
+      - australia-southeast1
+    matchLabels:
+      environment: qa
+      apps/pacman: deployed

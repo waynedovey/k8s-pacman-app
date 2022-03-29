@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: pacman-app-pipeline-run
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: pacman-app-pipeline
+  resources:
+    - name: pacman-app-git
+      resourceRef:
+        name: pacman-app-git
+    - name: pacman-app-image-dev
+      resourceRef:
+        name: pacman-app-image-dev
+    - name: pacman-app-image-qa
+      resourceRef:
+        name: pacman-app-image-qa
+  params:
+    - name: DEPLOY_ENVIRONMENT
+      value: 'pacman-app-dev'
+    - name: PROMOTE_ENVIRONMENT
+      value: 'pacman-app-qa'

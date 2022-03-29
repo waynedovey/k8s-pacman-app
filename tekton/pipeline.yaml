@@ -1,0 +1,183 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  annotations:
+  name: pacman-app-pipeline
+  namespace: pacman-app-cicd
+spec:
+  params:
+    - default: pacman-app-tekton
+      description: The name of the application
+      name: APP_NAME
+      type: string
+    - default: '1.0'
+      description: The version of the application
+      name: APP_VERSION
+      type: string
+    - default: pacman-app-dev
+      description: The project where you deploy the app
+      name: DEPLOY_PROJECT
+      type: string
+    - default: pacman-app-qa
+      description: The project where you deploy the app
+      name: PROMOTE_PROJECT
+      type: string
+    - default: 'https://github.com/waynedovey/k8s-pacman-app.git'
+      description: url of the git repo for the code of deployment
+      name: git-url
+      type: string
+    - default: main
+      description: revision to be used from repo of the code for deployment
+      name: git-revision
+      type: string
+  resources:
+    - name: pacman-app-git
+      type: git
+    - name: pacman-app-image-dev
+      type: image
+    - name: pacman-app-image-qa
+      type: image
+  tasks:
+    - name: fetch-acm-repository
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: deleteExisting
+          value: 'true'
+        - name: revision
+          value: $(params.git-revision)
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace-config
+    - name: create-namespaces
+      runAfter:
+        - fetch-acm-repository
+      taskRef:
+        kind: Task
+        name: create-namespaces
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+    - name: build
+      resources:
+        inputs:
+          - name: source
+            resource: pacman-app-git
+        outputs:
+          - name: image
+            resource: pacman-app-image-dev
+      runAfter:
+        - create-namespaces
+      taskRef:
+        kind: Task
+        name: s2i-nodejs
+      workspaces:
+        - name: source
+          workspace: shared-workspace-app
+    - name: deploy
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+        - name: APP_VERSION
+          value: $(params.APP_VERSION)
+        - name: DEPLOY_PROJECT
+          value: $(params.DEPLOY_PROJECT)
+      resources:
+        inputs:
+          - name: image
+            resource: pacman-app-image-dev
+      runAfter:
+        - build
+      taskRef:
+        kind: Task
+        name: deploy-pacman-app
+    - name: test
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+        - name: APP_VERSION
+          value: $(params.APP_VERSION)
+        - name: DEPLOY_PROJECT
+          value: $(params.DEPLOY_PROJECT)
+      runAfter:
+        - deploy
+      taskRef:
+        kind: Task
+        name: test-pacman-app
+    - name: promote
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+        - name: APP_VERSION
+          value: $(params.APP_VERSION)
+        - name: DEPLOY_PROJECT
+          value: $(params.DEPLOY_PROJECT)
+        - name: PROMOTE_PROJECT
+          value: $(params.PROMOTE_PROJECT)
+      resources:
+        inputs:
+          - name: image
+            resource: pacman-app-image-dev
+        outputs:
+          - name: image
+            resource: pacman-app-image-qa
+      runAfter:
+        - test
+      taskRef:
+        kind: Task
+        name: promote-pacman-app
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+    - name: acm-sync
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+        - name: APP_VERSION
+          value: $(params.APP_VERSION)
+        - name: DEPLOY_PROJECT
+          value: $(params.DEPLOY_PROJECT)
+      runAfter:
+        - promote
+      taskRef:
+        kind: Task
+        name: acm-sync
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+    - name: pacman-app-dev-deployment
+      runAfter:
+        - create-namespaces
+      taskRef:
+        kind: Task
+        name: pacman-app-dev-deployment
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+    - name: pacman-app-qa-deployment
+      runAfter:
+        - pacman-app-dev-deployment
+      taskRef:
+        kind: Task
+        name: pacman-app-qa-deployment
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+    - name: pacman-app-prod-deployment
+      runAfter:
+        - pacman-app-qa-deployment
+      taskRef:
+        kind: Task
+        name: pacman-app-prod-deployment
+      workspaces:
+        - name: source
+          workspace: shared-workspace-config
+  workspaces:
+    - name: shared-workspace-config
+      optional: false
+    - name: shared-workspace-app
+      optional: false
+  finally: []
