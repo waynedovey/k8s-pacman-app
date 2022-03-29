@@ -17,8 +17,6 @@ metadata:
 spec:
   type: GitHub
   pathname: https://github.com/waynedovey/k8s-pacman-app.git
-  # secretRef:
-  #   name: github-credentials
 ---
 apiVersion: app.k8s.io/v1beta1
 kind: Application
@@ -73,11 +71,6 @@ spec:
       values:
       - ap-southeast-1
       - ap-southeast-2
-<<<<<<< HEAD
-#      - europe-west3
-=======
-      - ap-northeast-1
->>>>>>> 203c6cfde6ee735e4dc46f83578bba011b118fa7
     matchLabels:
       environment: dev
       apps/pacman: deployed
